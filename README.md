@@ -195,17 +195,27 @@ class LocalMockAIProvider(AbstractAIProvider):
     """
     Rule-based generator used for local development and deterministic output.
     It produces sensible test-case skeletons from the spec without calling an LLM.
+    
+    Bug FIX :
+    def generate(self, spec: TestCaseSpec) -> List[TestCase]:
+    cases: List[TestCase] = []
+    idx = 1
+    slug = spec.title.replace(" ", "_")
+
+    name=f"{slug}_case_{idx}"
+    
     """
 
     def generate(self, spec: TestCaseSpec) -> List[TestCase]:
-        cases: List[TestCase] = []
-        idx = 1
+    cases: List[TestCase] = []
+    idx = 1
+    slug = spec.title.replace(" ", "_")
 
         # Generate baseline cases from "inputs"
         for inp in spec.inputs:
             tc = TestCase(
                 id=str(idx),
-                name=f"{slug := spec.title.replace(' ', '_')}_case_{idx}",
+                name=f"{slug}_case_{idx}",
                 description=f"Auto-generated case for input {inp.get('name')}",
                 steps=[],
                 tags=spec.metadata.get('tags', []) or [],
