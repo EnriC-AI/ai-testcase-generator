@@ -1,0 +1,29 @@
+# A compact test-spec example describing a small function/API to test
+title: "Create Order"
+description: "Create order endpoint behaviour"
+target: "api"            # or 'function'
+subject: "/orders"        # endpoint or function name
+inputs:
+  - name: "valid_order"
+    payload:
+      customer_id: 123
+      items:
+        - sku: "SKU-1"
+          qty: 2
+    expected:
+      status_code: 201
+      body_contains: "order_id"
+
+edge_cases:
+  - name: "missing_customer"
+    input:
+      payload:
+        items:
+          - sku: "SKU-1"
+            qty: 1
+    expected:
+      status_code: 400
+      body_contains: "customer_id"
+
+metadata:
+  tags: ["orders", "create"]

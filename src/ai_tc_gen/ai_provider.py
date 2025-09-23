@@ -24,12 +24,13 @@ class LocalMockAIProvider(AbstractAIProvider):
     def generate(self, spec: TestCaseSpec) -> List[TestCase]:
         cases: List[TestCase] = []
         idx = 1
+        slug = spec.title.replace(" ", "_")
 
         # Generate baseline cases from "inputs"
         for inp in spec.inputs:
             tc = TestCase(
                 id=str(idx),
-                name=f"{slugify() := spec.title.replace(' ', '_')}_case_{idx}",
+                name=f"{slug}_case_{idx}",
                 description=f"Auto-generated case for input {inp.get('name')}",
                 steps=[],
                 tags=spec.metadata.get('tags', []) or [],
@@ -48,7 +49,7 @@ class LocalMockAIProvider(AbstractAIProvider):
         for ec in spec.edge_cases:
             tc = TestCase(
                 id=str(idx),
-                name=f"{slugify()}_edge_{idx}",
+                name=f"{slug}_edge_{idx}",
                 description=f"Edge-case: {ec.get('name')}",
                 steps=[],
                 tags=spec.metadata.get('tags', []) or [],
