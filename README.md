@@ -12,7 +12,7 @@ Questo documento contiene lo scaffold completo del progetto, il codice sorgente 
 
 ---
 
-## Project tree (suggested)
+## Project tree
 
 ```
 ai-testcase-generator/
