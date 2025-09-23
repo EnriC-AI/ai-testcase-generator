@@ -1,5 +1,4 @@
-# AI-Powered Test Case Generator — Project scaffold & complete code
-
+# AI-Powered Test Case Generator
 > **Language:** Italian for high-level notes; **code and inline comments are in English** as requested.
 
 ---
