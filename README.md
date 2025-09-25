@@ -1,5 +1,4 @@
-# AI-Powered Test Case Generator — Project scaffold & complete code
-
+# AI-Powered Test Case Generator
 > **Language:** Italian for high-level notes; **code and inline comments are in English** as requested.
 
 ---
@@ -13,7 +12,7 @@ Questo documento contiene lo scaffold completo del progetto, il codice sorgente 
 
 ---
 
-## Project tree (suggested)
+## Project tree
 
 ```
 ai-testcase-generator/
@@ -100,7 +99,7 @@ metadata:
 
 ---
 
-## Full source files
+## Source files
 
 > **Important:** comments inside code are written in English. Below each file content is a full, runnable example; copy each into the corresponding path in `src/ai_tc_gen/`.
 
@@ -539,16 +538,7 @@ def test_generate_sample(tmp_path):
 
 ---
 
-## Usage (PyCharm - quick start)
 
-1. Open PyCharm and choose *Open* the `ai-testcase-generator` folder.
-2. Create a virtual environment: `Python Interpreter -> Add Interpreter -> Virtualenv`.
-3. Install dependencies: open the terminal and run `pip install -r requirements.txt`.
-4. Configure environment variables: create a `.env` file or set `OPENAI_API_KEY` if you plan to use the OpenAI provider.
-5. Create a run configuration to run the CLI module:
-   - Script path: `<project root>/src/ai_tc_gen/cli.py` OR set `Module name` as `ai_tc_gen.cli`.
-   - Parameters example: `generate --spec examples/specs/sample_spec.yaml --provider local --out generated`.
-6. Run/Debug: set breakpoints inside `ai_tc_gen/generator.py` or `ai_provider.py` to step through the generation logic.
 
 ---
 
@@ -572,67 +562,4 @@ def test_generate_sample(tmp_path):
 
 ---
 
-## Detailed development sequence — what to implement, and in which order (step-by-step)
 
-> This is a checklist you can follow while building the project. Each item lists concrete programming tasks and suggested validations.
-
-1. **Define requirements & examples**
-   - Write `requirements.txt` and a minimal `examples/specs/sample_spec.yaml` as contract.
-   - Validate the YAML structure manually.
-
-2. **Scaffold repository**
-   - Create `src/ai_tc_gen/` and add empty files for each module (`__init__.py`, `models.py`, etc.).
-   - Add `README.md` with usage notes.
-
-3. **Implement data models (`models.py`)**
-   - Create dataclasses for `TestCaseSpec`, `TestCase`, and `TestStep`.
-   - Add simple serialization if needed.
-
-4. **Implement utils**
-   - Add `slugify` and `safe_repr` to ease templating.
-
-5. **Implement local (deterministic) provider**
-   - Implement `LocalMockAIProvider.generate()` that converts spec into `TestCase` objects.
-   - Unit test: call `generate()` with the sample spec and assert non-empty output.
-
-6. **Templating/rendering**
-   - Add `templating.render_pytest_file()` using Jinja2 and create a minimal template that yields valid `pytest` functions.
-   - Manual test: inspect the generated file and run `pytest` (it'll contain asserts that need replacing).
-
-7. **Generator orchestration**
-   - Implement `generator.generate_from_spec()` that wires load_spec -> provider -> validate -> render.
-   - Add CLI wrapper `cli.py` to call the generator.
-
-8. **Validators & safety checks**
-   - Implement `validators.validate_testcases()` and call it in the orchestration layer.
-
-9. **(Optional) LLM provider adapter**
-   - Implement `OpenAIProvider` or any other provider class and keep it behind the `AbstractAIProvider` interface.
-   - Important: require structured JSON output and validate the shape before accepting it.
-
-10. **Unit tests and integration tests**
-   - Add `tests/test_generator.py` to exercise the flow using the local provider.
-   - Add CI job later to run `pytest`.
-
-11. **Iterate**
-   - Replace the `assert True` placeholders in generated tests with real calls.
-   - Improve prompt engineering when using a real LLM to ensure structured responses.
-
----
-
-## Tips & next steps
-
-- Keep the `LocalMockAIProvider` as the default during development — it provides reproducible output so you can iterate templates/validators quickly.
-- When enabling an LLM provider, always require the model to return a **strict JSON schema**; then run strict validation with `pydantic` or `jsonschema` before generating files.
-- Consider adding a `--dry-run` flag to the CLI to get JSON output without writing files.
-- For production usage, add robust logging, retries, timeouts and human-in-the-loop review of generated tests before they land in CI.
-
----
-
-## Want changes or a different output format?
-If you want the generator to produce `robotframework` tests, `postman` collections, or plain JSON testcases, tell me which format you prefer and I will add the rendering template and a sample output.
-
-
----
-
-_End of document._
