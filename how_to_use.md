@@ -19,7 +19,7 @@
     python -m ai_tc_gen.cli generate --spec examples/specs/sample_spec.yaml --provider local --out generated
     ```
 
-5.  Troverai i test generati nella cartella `generated/`.
+Troverai i test generati nella cartella `generated/`.
 
 ## English 🇬🇧
 
