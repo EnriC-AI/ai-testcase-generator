@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df617324-7c8d-49cb-8722-45601013872f" name="Changes" comment="V. 1.0.0-alpha">
-      <change afterPath="$PROJECT_DIR$/run_generate/run_generate.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/how_to_use.md" beforeDir="false" afterPath="$PROJECT_DIR$/how_to_use.md" afterDir="false" />
+    <list default="true" id="df617324-7c8d-49cb-8722-45601013872f" name="Changes" comment="V. 1.0.1-beta ( Prima esecuzione completa )">
+      <change afterPath="$PROJECT_DIR$/how_to_use_new.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -180,7 +178,15 @@
       <option name="project" value="LOCAL" />
       <updated>1758828382005</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="V. 1.0.1-beta ( Prima esecuzione completa )">
+      <option name="closed" value="true" />
+      <created>1759434710636</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1759434710636</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -191,6 +197,8 @@
     <MESSAGE value="LocalMockAIProvider.generate()" />
     <MESSAGE value="Bug FIX :&#10;def generate(self, spec: TestCaseSpec) -&gt; List[TestCase]:&#10;    cases: List[TestCase] = []&#10;    idx = 1&#10;    slug = spec.title.replace(&quot; &quot;, &quot;_&quot;) &#10;    &#10;    name=f&quot;{slug}_case_{idx}&quot;" />
     <MESSAGE value="V. 1.0.0-alpha" />
-    <option name="LAST_COMMIT_MESSAGE" value="V. 1.0.0-alpha" />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'" />
+    <MESSAGE value="V. 1.0.1-beta ( Prima esecuzione completa )" />
+    <option name="LAST_COMMIT_MESSAGE" value="V. 1.0.1-beta ( Prima esecuzione completa )" />
   </component>
 </project>
