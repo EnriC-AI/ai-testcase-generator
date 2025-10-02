@@ -1,58 +1,43 @@
-# Guida all'esecuzione / Run Guide
+# Guida all'Uso / How to Use
 
-## 🇮🇹 Istruzioni (Linux/macOS)
+## Italiano 🇮🇹
 
-1. Assicurati di avere **Python 3.8+** installato.
-2. (Opzionale) Crea un virtualenv:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-3. Installa le dipendenze:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Rendi eseguibile lo script:
-   ```bash
-   chmod +x run_generate.sh
-   ```
-5. Esegui lo script:
-   ```bash
-   ./run_generate.sh
-   ```
+1.  Clona il repository o scarica i file del progetto.
 
-Il file generato sarà in `generated/test_create_order.py`.
+2.  Installa le dipendenze con:
 
----
+    ``` bash
+    pip install -r requirements.txt
+    ```
 
-## 🇬🇧 Instructions (Linux/macOS)
+3.  Prepara un file di specifica YAML (vedi
+    `examples/specs/sample_spec.yaml`).
 
-1. Make sure you have **Python 3.8+** installed.
-2. (Optional) Create a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Make the script executable:
-   ```bash
-   chmod +x run_generate.sh
-   ```
-5. Run the script:
-   ```bash
-   ./run_generate.sh
-   ```
+4.  Lancia il generatore dalla CLI:
 
-The generated file will be located in `generated/test_create_order.py`.
+    ``` bash
+    python -m ai_tc_gen.cli generate --spec examples/specs/sample_spec.yaml --provider local --out generated
+    ```
 
----
+Troverai i test generati nella cartella `generated/`.
 
-## Note
+## English 🇬🇧
 
-- Lo script usa come input `examples/specs/sample_spec.yaml`.  
-  Puoi sostituire questo path con un tuo file YAML o Excel (`--spec-excel spec.xlsx`).  
+1.  Clone the repository or download the project files.
 
-- The script sets `PYTHONPATH=src` automatically, so Python can find the `ai_tc_gen` package.  
+2.  Install the dependencies with:
+
+    ``` bash
+    pip install -r requirements.txt
+    ```
+
+3.  Prepare a YAML specification file (see
+    `examples/specs/sample_spec.yaml`).
+
+4.  Run the generator via CLI:
+
+    ``` bash
+    python -m ai_tc_gen.cli generate --spec examples/specs/sample_spec.yaml --provider local --out generated
+    ```
+
+5.  You will find the generated tests in the `generated/` folder.
