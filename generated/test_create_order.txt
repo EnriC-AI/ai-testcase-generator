@@ -1,0 +1,25 @@
+
+# Auto-generated pytest file — do not edit by hand unless you intend to import pytest
+
+
+def test_Create_Order_case_1():
+    Auto-generated case for input valid_order
+    
+    # Step: Call api:/orders
+    # Input: {'customer_id': 123, 'items': [{'sku': 'SKU-1', 'qty': 2}]}
+    # Expected: {'status_code': 201, 'body_contains': 'order_id'}
+    # TODO: replace the assertion below with a real call/assertion for your system
+    assert True
+    
+
+
+def test_Create_Order_edge_2():
+    Edge-case: missing_customer
+    
+    # Step: Call api:/orders
+    # Input: {'payload': {'items': [{'sku': 'SKU-1', 'qty': 1}]}}
+    # Expected: {'status_code': 400, 'body_contains': 'customer_id'}
+    # TODO: replace the assertion below with a real call/assertion for your system
+    assert True
+    
+
