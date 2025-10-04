@@ -2,5 +2,7 @@ jinja2
 pyyaml
 python-dotenv
 pytest
-# optional providers
+providers
 openai
+pandas
+openpyxl
