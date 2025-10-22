@@ -21,3 +21,7 @@
 git clone https://github.com/<tuo-utente>/ai-testcase-generator.git
 cd ai-testcase-generator
 pip install -r requirements.txt
+
+## 🧭 Project Status
+✅ v1.0.0 – CLI core version released  
+🚧 v2.0.0 – Web App version in development
