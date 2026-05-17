@@ -21,7 +21,17 @@
 git clone https://github.com/<tuo-utente>/ai-testcase-generator.git
 cd ai-testcase-generator
 pip install -r requirements.txt
+```
+
+## 🌐 Web locale / Local Web UI
+
+```bash
+python web_app.py
+```
+
+Apri `http://localhost:8501` per generare test dal browser.
 
 ## 🧭 Project Status
-✅ v1.0.0 – CLI core version released  
-🚧 v2.0.0 – Web App version in development
+✅ v1.0.0 – CLI core version released<br>
+✅ v1.1.0 – Local Web UI for browser testing<br>
+🚧 v2.0.0 – Hosted Web App version in development
