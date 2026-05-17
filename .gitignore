@@ -103,3 +103,10 @@ logs/
 # Temporary files
 tmp/
 temp/
+
+# Generated artifacts
+reports/
+generated/*.py
+generated/*.json
+generated/*.md
+!generated/.gitkeep

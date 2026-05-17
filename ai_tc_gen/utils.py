@@ -1,24 +1,40 @@
-# utils.py
-# Small utility helpers used across the project
+"""Small utility helpers used across the project."""
+
+from __future__ import annotations
+
+import json
 import re
+from pathlib import Path
 from typing import Any
 
 
-def slugify(text: str) -> str:
-    """Make a filesystem/test-friendly slug from text."""
-    text = text.lower()
-    text = re.sub(r"[^a-z0-9_]+", "_", text)
-    text = re.sub(r"_{2,}", "_", text)
-    return text.strip("_")
+_REPLACEMENT_PATTERN = re.compile(r"[^a-z0-9_]+")
 
 
-def safe_repr(value: Any) -> str:
-    """Return a short, code-safe representation of a value for embedding into templates."""
+def slugify(text: str, fallback: str = "untitled") -> str:
+    """Make a filesystem/test-friendly slug from arbitrary text."""
+    slug = _REPLACEMENT_PATTERN.sub("_", text.lower())
+    slug = re.sub(r"_{2,}", "_", slug).strip("_")
+    return slug or fallback
+
+
+def safe_repr(value: Any, max_length: int = 400) -> str:
+    """Return a short representation that is safe to embed in comments."""
     try:
-        # Use repr but keep it short for big lists/dicts
-        r = repr(value)
-        if len(r) > 400:
-            return r[:400] + '...'
-        return r
+        rendered = repr(value)
     except Exception:
-        return str(value)
+        rendered = str(value)
+
+    if len(rendered) > max_length:
+        return f"{rendered[:max_length]}..."
+    return rendered
+
+
+def ensure_parent_dir(path: str | Path) -> None:
+    """Create a file path's parent directory when it does not already exist."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+
+
+def dump_json(data: Any) -> str:
+    """Render deterministic, human-readable JSON."""
+    return json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True)
