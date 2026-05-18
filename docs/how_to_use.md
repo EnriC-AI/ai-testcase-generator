@@ -46,6 +46,18 @@ python -m ai_tc_gen.cli generate --spec examples/specs/sample_spec.yaml --provid
 python -m ai_tc_gen.cli generate --spec-excel spec.xlsx --provider local --out generated
 ```
 
+
+### 🌐 Local Web App
+
+🇮🇹 Per usare l'interfaccia web locale senza installare framework aggiuntivi:
+🇬🇧 To use the local web interface without installing additional frameworks:
+
+```bash
+python web_app.py
+```
+
+Poi apri <http://127.0.0.1:8000> nel browser.
+
 ---
 
 ## 💡 Providers

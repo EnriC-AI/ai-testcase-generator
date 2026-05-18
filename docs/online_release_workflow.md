@@ -201,19 +201,29 @@ Esempio di changelog:
 
 ## 8. Opzioni per una demo online
 
-Questo progetto è principalmente una CLI Python. Per renderlo “provabile online”, scegli una di queste strade:
+Questo progetto include una CLI Python e una web app locale avviabile con `python web_app.py`. Per renderlo “provabile online”, scegli una di queste strade:
 
 ### Opzione A — Repository GitHub pubblico
 
 È la scelta più semplice e consigliata per portfolio. Gli utenti clonano il progetto e lo eseguono localmente.
 
-### Opzione B — GitHub Codespaces
+### Opzione B — Web app locale
+
+È già disponibile una web app minimale basata sulla libreria standard Python:
+
+```bash
+python web_app.py
+```
+
+Poi apri <http://127.0.0.1:8000>, modifica la specifica YAML e genera il file `pytest`.
+
+### Opzione C — GitHub Codespaces
 
 Aggiungi istruzioni nel README per aprire il progetto in Codespaces. È utile perché l’utente può provarlo nel browser senza configurare Python sul proprio PC.
 
-### Opzione C — Web app dimostrativa
+### Opzione D — Web app dimostrativa pubblicata
 
-Se vuoi una vera interfaccia online, crea un branch dedicato:
+Se vuoi trasformare la web app locale in una vera interfaccia online pubblicata, crea un branch dedicato:
 
 ```bash
 git checkout -b feature/web-demo

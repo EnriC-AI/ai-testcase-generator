@@ -1,106 +1,133 @@
-# ai_provider.py
-# 🇮🇹 Provider AI: astratto, mock locale e adattatore OpenAI minimale.
-# 🇬🇧 AI provider: abstract, local mock and minimal OpenAI adapter.
+"""AI providers for deterministic and LLM-assisted test-case generation."""
 
-from abc import ABC, abstractmethod
-from typing import List
-from .models import TestCase, TestCaseSpec, TestStep
+from __future__ import annotations
+
 import json
+import os
+from abc import ABC, abstractmethod
+from typing import Any
+
+from .models import TestCase, TestCaseSpec, TestStep
+from .utils import slugify
+
 
 class AbstractAIProvider(ABC):
-    """🇮🇹 Interfaccia base per tutti i provider. 🇬🇧 Base interface for providers."""
+    """Base interface for all generation providers."""
+
     @abstractmethod
-    def generate(self, spec: TestCaseSpec) -> List[TestCase]:
-        """🇮🇹 Genera TestCase da TestCaseSpec. 🇬🇧 Generate TestCase from TestCaseSpec."""
-        raise NotImplementedError()
+    def generate(self, spec: TestCaseSpec) -> list[TestCase]:
+        """Generate test cases from a structured specification."""
+        raise NotImplementedError
+
 
 class LocalMockAIProvider(AbstractAIProvider):
-    """🇮🇹 Provider locale deterministico usato per sviluppo. 🇬🇧 Local deterministic provider for development."""
+    """Deterministic provider for local development, demos and CI."""
 
-    def generate(self, spec: TestCaseSpec) -> List[TestCase]:
-        """🇮🇹 Genera casi di test da inputs ed edge_cases. 🇬🇧 Generate test cases from inputs and edge_cases."""
-        cases: List[TestCase] = []
-        idx = 1
-        slug = spec.title.replace(' ', '_')
+    def generate(self, spec: TestCaseSpec) -> list[TestCase]:
+        """Generate predictable cases from normal inputs and edge cases."""
+        cases: list[TestCase] = []
+        tags = list(spec.metadata.get("tags", []) or [])
 
-        for inp in spec.inputs:
-            tc = TestCase(
-                id=str(idx),
-                name=f"{slug}_case_{idx}",
-                description=f"Auto-generated case for input {inp.get('name')}",
-                steps=[],
-                tags=spec.metadata.get('tags', []) or [],
+        for index, item in enumerate(spec.inputs, start=1):
+            cases.append(
+                self._build_case(
+                    index=index,
+                    spec=spec,
+                    item=item,
+                    kind="happy_path",
+                    default_expected={"status": "success"},
+                    tags=tags,
+                )
             )
-            step = TestStep(
-                action=f"Call {spec.target}:{spec.subject}",
-                input=inp.get('payload', inp),
-                expected=inp.get('expected', {'status': 'success'})
-            )
-            tc.steps.append(step)
-            cases.append(tc)
-            idx += 1
 
-        for ec in spec.edge_cases:
-            tc = TestCase(
-                id=str(idx),
-                name=f"{slug}_edge_{idx}",
-                description=f"Edge-case: {ec.get('name')}",
-                steps=[],
-                tags=spec.metadata.get('tags', []) or [],
+        offset = len(cases)
+        for edge_index, item in enumerate(spec.edge_cases, start=1):
+            cases.append(
+                self._build_case(
+                    index=offset + edge_index,
+                    spec=spec,
+                    item=item,
+                    kind="edge_case",
+                    default_expected={"status": "error"},
+                    tags=[*tags, "edge-case"],
+                )
             )
-            step = TestStep(
-                action=f"Call {spec.target}:{spec.subject}",
-                input=ec.get('payload', ec.get('input', {})),
-                expected=ec.get('expected', {'status': 'error'})
-            )
-            tc.steps.append(step)
-            cases.append(tc)
-            idx += 1
 
         return cases
 
-class OpenAIProvider(AbstractAIProvider):
-    """🇮🇹 Adattatore esemplificativo per OpenAI. 🇬🇧 Example adapter for OpenAI."""
+    @staticmethod
+    def _build_case(
+        *,
+        index: int,
+        spec: TestCaseSpec,
+        item: dict[str, Any],
+        kind: str,
+        default_expected: dict[str, Any],
+        tags: list[str],
+    ) -> TestCase:
+        case_name = slugify(str(item.get("name", f"case_{index}")))
+        spec_name = slugify(spec.title)
+        payload = item.get("payload", item.get("input", {}))
+        expected = item.get("expected", default_expected)
 
-    def __init__(self, api_key: str = None, model: str = "gpt-4o-mini"):
-        import os
-        try:
-            import openai
-        except Exception:
-            openai = None
-        self.openai = openai
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model = model
-        if self.openai and self.api_key:
-            self.openai.api_key = self.api_key
-
-    def generate(self, spec: TestCaseSpec) -> List[TestCase]:
-        """🇮🇹 Richiede l'API OpenAI e converte l'output JSON in TestCase. 🇬🇧 Calls OpenAI and maps JSON output into TestCase."""
-        if not self.openai:
-            raise RuntimeError("openai library not installed or not available")
-        if not self.api_key:
-            raise RuntimeError("OPENAI_API_KEY not set")
-
-        prompt = ("You are an assistant that outputs JSON describing testcases. " 
-                  "Given the spec, output a JSON list of objects with id,name,description,steps. " 
-                  "Each step must have action,input,expected. Do not output any other text.")
-        response = self.openai.ChatCompletion.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt + json.dumps(spec.__dict__, default=str)}],
-            temperature=0.2,
-            max_tokens=1000,
+        return TestCase(
+            id=f"TC-{index:03d}",
+            name=f"{spec_name}_{case_name}",
+            description=item.get("description", f"Validate {kind.replace('_', ' ')} scenario: {case_name}"),
+            steps=[
+                TestStep(
+                    action=f"Exercise {spec.target} '{spec.subject}'",
+                    input=payload,
+                    expected=expected,
+                )
+            ],
+            tags=tags,
         )
-        text = response.choices[0].message.content
+
+
+class OpenAIProvider(AbstractAIProvider):
+    """OpenAI provider using the modern OpenAI Python SDK client."""
+
+    def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
+        from openai import OpenAI
+
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise RuntimeError("OPENAI_API_KEY is required when provider='openai'")
+
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        self.client = OpenAI(api_key=self.api_key)
+
+    def generate(self, spec: TestCaseSpec) -> list[TestCase]:
+        """Ask OpenAI to produce strict JSON and map it into TestCase objects."""
+        system_prompt = (
+            "You are a senior QA automation engineer. Return only valid JSON with a top-level "
+            "'testcases' array. Each testcase must include id, name, description, tags and steps. "
+            "Each step must include action, input and expected."
+        )
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": json.dumps(spec.to_dict(), ensure_ascii=False)},
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.2,
+        )
+        text = response.choices[0].message.content or "{}"
         payload = json.loads(text)
-        cases: List[TestCase] = []
-        for item in payload:
-            steps = [TestStep(**s) for s in item.get('steps', [])]
-            tc = TestCase(
-                id=item.get('id', ''),
-                name=item.get('name', ''),
-                description=item.get('description', ''),
-                steps=steps,
-                tags=item.get('tags', []),
+        raw_cases = payload.get("testcases", payload if isinstance(payload, list) else [])
+
+        cases: list[TestCase] = []
+        for index, item in enumerate(raw_cases, start=1):
+            steps = [TestStep(**step) for step in item.get("steps", [])]
+            cases.append(
+                TestCase(
+                    id=str(item.get("id", f"TC-{index:03d}")),
+                    name=slugify(str(item.get("name", f"case_{index}"))),
+                    description=str(item.get("description", "Generated by OpenAI")),
+                    steps=steps,
+                    tags=list(item.get("tags", [])),
+                )
             )
-            cases.append(tc)
         return cases
