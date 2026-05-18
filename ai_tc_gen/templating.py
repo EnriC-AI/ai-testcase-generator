@@ -1,9 +1,11 @@
 # templating.py
 # Rendering templates (Jinja2) for test output.
-from jinja2 import Environment, Template
 from typing import List
+
+from jinja2 import Environment, Template
+
 from .models import TestCase
-from .utils import safe_repr, slugify
+from .utils import safe_repr
 
 PYTEST_TEMPLATE = """
 # Auto-generated pytest file — do not edit by hand unless you intend to import pytest
@@ -23,31 +25,42 @@ def test_{{ tc.name | replace(' ', '_') }}():
 """
 
 
-def render_pytest_file(path: str, testcases: List[TestCase], spec=None) -> None:
-    """Render a pytest file from a list of TestCase objects and write it to `path`."""
+def serialize_testcases(testcases: List[TestCase]) -> list[dict]:
+    """Convert TestCase dataclasses into dictionaries suitable for templates or APIs."""
+    serializable_cases = []
+    for tc in testcases:
+        serializable_cases.append({
+            'id': tc.id,
+            'name': tc.name,
+            'description': tc.description,
+            'tags': tc.tags,
+            'steps': [
+                {
+                    'action': s.action,
+                    'input': safe_repr(s.input),
+                    'expected': safe_repr(s.expected),
+                }
+                for s in tc.steps
+            ],
+        })
+
+    return serializable_cases
+
+
+def render_pytest_content(testcases: List[TestCase], spec=None) -> str:
+    """Render pytest source code from a list of TestCase objects."""
     env = Environment()
 
     # Provide simple filters
     env.filters['safe_repr'] = safe_repr
 
     template: Template = env.from_string(PYTEST_TEMPLATE)
-    # Convert dataclasses to simple dictionaries for the template engine
-    serializable_cases = []
-    for tc in testcases:
-        serializable_cases.append({
-            'name': tc.name,
-            'description': tc.description,
-            'steps': [
-                {
-                    'action': s.action,
-                    'input': safe_repr(s.input),
-                    'expected': safe_repr(s.expected)
-                }
-                for s in tc.steps
-            ]
-        })
+    return template.render(testcases=serialize_testcases(testcases), spec=spec)
 
-    content = template.render(testcases=serializable_cases, spec=spec)
+
+def render_pytest_file(path: str, testcases: List[TestCase], spec=None) -> None:
+    """Render a pytest file from a list of TestCase objects and write it to `path`."""
+    content = render_pytest_content(testcases, spec=spec)
 
     with open(path, 'w', encoding='utf-8') as f:
         f.write(content)
