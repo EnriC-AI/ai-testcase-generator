@@ -1,23 +1,62 @@
-from pathlib import Path
+# tests/test_web.py
+# Basic web-app tests for the stdlib HTTP preview and API generation endpoints.
+import json
+import threading
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
-import pytest
-
-from ai_tc_gen.web import DEFAULT_SAMPLE_SPEC, generate_from_yaml_text
-
-
-def test_generate_from_yaml_text_creates_pytest_file(tmp_path):
-    generated_path, generated_content = generate_from_yaml_text(
-        DEFAULT_SAMPLE_SPEC,
-        provider_name="local",
-        out_dir=str(tmp_path),
-    )
-
-    assert Path(generated_path).exists()
-    assert Path(generated_path).parent == tmp_path
-    assert "def test_Create_Order_case_1" in generated_content
-    assert "def test_Create_Order_edge_2" in generated_content
+from ai_tc_gen.web import SAMPLE_SPEC, AITestCaseGeneratorHandler
+from http.server import ThreadingHTTPServer
 
 
-def test_generate_from_yaml_text_rejects_empty_spec(tmp_path):
-    with pytest.raises(ValueError, match="YAML spec cannot be empty"):
-        generate_from_yaml_text("   ", out_dir=str(tmp_path))
+def start_test_server():
+    server = ThreadingHTTPServer(('127.0.0.1', 0), AITestCaseGeneratorHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return server, f'http://127.0.0.1:{server.server_address[1]}'
+
+
+def test_web_index_loads():
+    server, base_url = start_test_server()
+    try:
+        with urlopen(f'{base_url}/') as response:
+            body = response.read()
+
+        assert response.status == 200
+        assert b'AI Test Case Generator' in body
+        assert b'Generate pytest test cases' in body
+    finally:
+        server.shutdown()
+
+
+def test_web_generate_preview():
+    server, base_url = start_test_server()
+    try:
+        data = urlencode({'spec': SAMPLE_SPEC, 'provider': 'local', 'action': 'preview'}).encode()
+        request = Request(f'{base_url}/generate', data=data, method='POST')
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+
+        with urlopen(request) as response:
+            body = response.read()
+
+        assert response.status == 200
+        assert b'test_Create_Order_case_1' in body
+        assert b'test_Create_Order_edge_2' in body
+    finally:
+        server.shutdown()
+
+
+def test_web_api_generate():
+    server, base_url = start_test_server()
+    try:
+        data = json.dumps({'spec': SAMPLE_SPEC, 'provider': 'local'}).encode()
+        request = Request(f'{base_url}/api/generate', data=data, method='POST')
+        request.add_header('Content-Type', 'application/json')
+
+        with urlopen(request) as response:
+            payload = json.loads(response.read().decode())
+
+        assert response.status == 200
+        assert 'test_Create_Order_case_1' in payload['output']
+    finally:
+        server.shutdown()
