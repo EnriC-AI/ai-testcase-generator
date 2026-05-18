@@ -118,3 +118,18 @@ temp/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Generated artifacts
+reports/
+generated/*.py
+generated/*.json
+generated/*.md
+!generated/.gitkeep
