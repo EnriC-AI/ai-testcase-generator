@@ -1,10 +1,25 @@
-"""Render generated test cases into professional output formats."""
-
-from __future__ import annotations
-
-from pathlib import Path
+# templating.py
+# Rendering templates (Jinja2) for test output.
+from typing import List
 
 from jinja2 import Environment, Template
+
+from .models import TestCase
+from .utils import safe_repr
+
+PYTEST_TEMPLATE = """
+# Auto-generated pytest file — do not edit by hand unless you intend to import pytest
+
+{% for tc in testcases %}
+def test_{{ tc.name | replace(' ', '_') }}():
+    {{ tc.description }}
+    {% for step in tc.steps %}
+    # Step: {{ step.action }}
+    # Input: {{ step.input | safe }}
+    # Expected: {{ step.expected | safe }}
+    # TODO: replace the assertion below with a real call/assertion for your system
+    assert True
+    {% endfor %}
 
 from .models import TestCase, TestCaseSpec
 from .utils import dump_json, ensure_parent_dir, safe_repr, slugify
@@ -57,37 +72,42 @@ MARKDOWN_TEMPLATE = """# {{ spec.title }} - Generated Test Cases
 """
 
 
-def _environment() -> Environment:
-    env = Environment(autoescape=False, trim_blocks=True, lstrip_blocks=True)
-    env.filters["safe_repr"] = safe_repr
-    return env
+def serialize_testcases(testcases: List[TestCase]) -> list[dict]:
+    """Convert TestCase dataclasses into dictionaries suitable for templates or APIs."""
+    serializable_cases = []
+    for tc in testcases:
+        serializable_cases.append({
+            'id': tc.id,
+            'name': tc.name,
+            'description': tc.description,
+            'tags': tc.tags,
+            'steps': [
+                {
+                    'action': s.action,
+                    'input': safe_repr(s.input),
+                    'expected': safe_repr(s.expected),
+                }
+                for s in tc.steps
+            ],
+        })
+
+    return serializable_cases
 
 
-def render_pytest_file(path: str | Path, testcases: list[TestCase], spec: TestCaseSpec) -> None:
-    """Render a parametrized pytest module."""
-    ensure_parent_dir(path)
-    template: Template = _environment().from_string(PYTEST_TEMPLATE)
-    content = template.render(
-        spec=spec,
-        spec_slug=slugify(spec.title),
-        cases_literal=safe_repr([case.to_dict() for case in testcases], max_length=100_000),
-    )
-    Path(path).write_text(content, encoding="utf-8")
+def render_pytest_content(testcases: List[TestCase], spec=None) -> str:
+    """Render pytest source code from a list of TestCase objects."""
+    env = Environment()
+
+    # Provide simple filters
+    env.filters['safe_repr'] = safe_repr
+
+    template: Template = env.from_string(PYTEST_TEMPLATE)
+    return template.render(testcases=serialize_testcases(testcases), spec=spec)
 
 
-def render_markdown_file(path: str | Path, testcases: list[TestCase], spec: TestCaseSpec) -> None:
-    """Render generated cases as reviewer-friendly Markdown documentation."""
-    ensure_parent_dir(path)
-    template: Template = _environment().from_string(MARKDOWN_TEMPLATE)
-    content = template.render(spec=spec, testcases=testcases)
-    Path(path).write_text(content, encoding="utf-8")
+def render_pytest_file(path: str, testcases: List[TestCase], spec=None) -> None:
+    """Render a pytest file from a list of TestCase objects and write it to `path`."""
+    content = render_pytest_content(testcases, spec=spec)
 
-
-def render_json_file(path: str | Path, testcases: list[TestCase], spec: TestCaseSpec) -> None:
-    """Render generated cases as deterministic JSON for downstream tooling."""
-    ensure_parent_dir(path)
-    payload = {
-        "spec": spec.to_dict(),
-        "testcases": [case.to_dict() for case in testcases],
-    }
-    Path(path).write_text(dump_json(payload) + "\n", encoding="utf-8")
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)

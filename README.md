@@ -12,94 +12,48 @@ It is designed as a portfolio-ready automation project: deterministic local gene
 - **Multiple output formats:** parametrized `pytest`, reviewer-friendly `Markdown`, and machine-readable `JSON`.
 - **Validation-first workflow** for source specs and generated cases.
 - **Installable CLI** via `pyproject.toml` with the `ai-tc-gen` command.
+- ✅ Input da file **YAML** o **Excel (.xlsx)**  
+- 🧠 Supporto a test case generati tramite AI o provider locali  
+- ⚙️ Output in formato pytest tramite CLI o Web App  
+- 🔍 Logging e validazione automatica delle specifiche  
+- 📦 Compatibile con ambienti Windows, Linux e macOS
 
 ## 🚀 Quick start
 
 ```bash
 git clone https://github.com/<your-user>/ai-testcase-generator.git
 cd ai-testcase-generator
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
-pip install -e ".[dev]"
+pip install -r requirements.txt
 ```
 
-Generate a pytest file from the sample spec:
+## 🧭 Project Status
+✅ v1.0.0 – CLI core version released  
+✅ v2.0.0 – Web App version available
+
+---
+
+## 🌐 Web App Version
+
+The project now includes a lightweight Web App based on Python's standard library for generating pytest test cases from YAML specs without using the CLI.
+
+### Run locally
 
 ```bash
-ai-tc-gen generate --spec examples/specs/sample_spec.yaml --format pytest --out generated
+pip install -r requirements.txt
+python -m ai_tc_gen.web
 ```
 
-Generate Markdown or JSON artifacts:
+Then open <http://127.0.0.1:5000> and:
+
+1. Paste or load the sample YAML specification.
+2. Select the provider (`Local mock` for deterministic offline generation, or `OpenAI` when `OPENAI_API_KEY` is configured).
+3. Click **Generate preview** to inspect generated test cases and pytest output.
+4. Click **Download pytest** to download the generated `.py` file.
+
+### HTTP API
 
 ```bash
-ai-tc-gen generate -s examples/specs/sample_spec.yaml -f markdown -o generated
-ai-tc-gen generate -s examples/specs/sample_spec.yaml -f json -o generated
+curl -X POST http://127.0.0.1:5000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"provider":"local","spec":"title: Demo\ntarget: api\nsubject: GET /health\ninputs:\n  - name: ok\n    expected:\n      status_code: 200\n"}'
 ```
-
-## 🧠 Optional OpenAI provider
-
-```bash
-export OPENAI_API_KEY="your-api-key"
-ai-tc-gen generate -s examples/specs/sample_spec.yaml -p openai --model gpt-4o-mini -f json
-```
-
-The default `local` provider is recommended for reproducible CI output.
-
-## 🧾 YAML spec structure
-
-```yaml
-title: "Create Order"
-description: "Create order endpoint behaviour"
-target: "api"
-subject: "/orders"
-inputs:
-  - name: "valid_order"
-    payload: {customer_id: 123}
-    expected: {status_code: 201}
-edge_cases:
-  - name: "missing_customer"
-    payload: {}
-    expected: {status_code: 400}
-metadata:
-  tags: ["orders", "create"]
-```
-
-Supported `target` values are `api`, `function`, `service`, and `ui`.
-
-## 📊 Excel input
-
-Excel files must include these columns:
-
-| Column | Required | Description |
-| --- | --- | --- |
-| `title` | Yes | Test suite title. |
-| `description` | Yes | Test suite description. |
-| `target` | Yes | `api`, `function`, `service`, or `ui`. |
-| `subject` | Yes | Endpoint, function, component, or service name. |
-| `name` | Yes | Scenario name. |
-| `payload_json` | No | JSON object used as input. |
-| `expected_json` | Yes | JSON object used as expected result. |
-| `edge_case` | No | `true`, `yes`, or `1` marks the row as an edge case. |
-| `tags` | No | Comma-separated tags. |
-
-## ✅ Quality checks
-
-```bash
-python -m pytest
-python -m ai_tc_gen.cli generate -s examples/specs/sample_spec.yaml -f pytest -o /tmp/ai-tc-gen
-```
-
-## 📦 Project layout
-
-```text
-ai_tc_gen/          Core package
-examples/specs/     Ready-to-run examples
-tests/              Unit tests
-generated/          Local generated artifacts (ignored except .gitkeep)
-docs/               Usage notes
-```
-
-## 🗺️ Status
-
-- `v1.2.0`: professional CLI, local/OpenAI providers, YAML/Excel loading, pytest/Markdown/JSON output.
-- Next: richer templates, schema export, and web UI.

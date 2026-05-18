@@ -1,5 +1,5 @@
 # ======================================
-# 🐍 Python standard .gitignore
+# 🐍 Python / PyTest API framework
 # ======================================
 
 # Byte-compiled / optimized / DLL files
@@ -7,12 +7,24 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# C extensions
+*.so
+
 # Virtual environments
 .venv/
 venv/
 env/
 ENV/
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Dependency / lock files generated locally
 Pipfile.lock
+poetry.lock
 
 # Distribution / packaging
 build/
@@ -31,10 +43,9 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
-#  Files created by PyInstaller
-#  Usually contain a manifest and other build data
 *.manifest
 *.spec
 
@@ -56,43 +67,55 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+junit*.xml
+
+# Test and API automation reports
+reports/
+allure-results/
+allure-report/
+report.html
+pytest-report.html
+
+# Logs
+logs/
+*.log
+
+# Generated test/output artifacts
+# Existing tracked examples stay versioned; this ignores newly generated local files.
+generated/*
+!generated/.gitkeep
 
 # Translations
 *.mo
 *.pot
 
-# Django stuff
-*.log
+# Framework-specific runtime data
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-
-# Flask stuff
 instance/
 .webassets-cache
-
-# Scrapy stuff
 .scrapy
 
-# Sphinx documentation
+# Documentation build output
 docs/_build/
-build/
+
+# Temporary files
+tmp/
 temp/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# VSCode and other IDEs
-.vscode/
-.idea/
+*.tmp
+*.bak
 *.swp
 *.swo
-*.bak
 
-# macOS / Linux
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE/editor metadata
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
 Thumbs.db
 
