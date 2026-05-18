@@ -17,12 +17,15 @@ It is designed as a portfolio-ready automation project: deterministic local gene
 - ⚙️ Output in formato pytest tramite CLI o Web App  
 - 🔍 Logging e validazione automatica delle specifiche  
 - 📦 Compatibile con ambienti Windows, Linux e macOS
+- 🌐 Documentazione pronta per pubblicazione online e portfolio
 
 ## 🚀 Quick start
 
 ```bash
 git clone https://github.com/<your-user>/ai-testcase-generator.git
 cd ai-testcase-generator
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 

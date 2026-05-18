@@ -12,7 +12,7 @@ PYTEST_TEMPLATE = """
 
 {% for tc in testcases %}
 def test_{{ tc.name | replace(' ', '_') }}():
-    {{ tc.description }}
+    # {{ tc.description }}
     {% for step in tc.steps %}
     # Step: {{ step.action }}
     # Input: {{ step.input | safe }}
