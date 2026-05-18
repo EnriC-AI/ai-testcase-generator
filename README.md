@@ -1,84 +1,62 @@
 # 🧪 AI Test Case Generator
 
-🇮🇹 Generatore di test case automatizzati basato su specifiche YAML o Excel.
-🇬🇧 Automated test case generator based on YAML or Excel specifications.
+Professional CLI tool that turns YAML or Excel specifications into practical test-case artifacts for QA automation teams.
 
----
+It is designed as a portfolio-ready automation project: deterministic local generation for CI, optional OpenAI-assisted generation, strict validation, and outputs that can be reviewed by QA engineers or wired into a pytest suite.
 
-## 🚀 Funzionalità / Features
+## ✨ Features
 
-- ✅ Input da file **YAML** o **Excel (.xlsx)**
-- 🧠 Supporto a test case generati tramite AI o provider locali
-- ⚙️ Output in formato leggibile per test `pytest`
-- 🔍 Logging e validazione automatica delle specifiche
+- **YAML and Excel input** for product, API, function or service test specs.
+- **Deterministic local provider** for demos, offline work and CI pipelines.
+- **Optional OpenAI provider** for LLM-assisted generation when `OPENAI_API_KEY` is configured.
+- **Multiple output formats:** parametrized `pytest`, reviewer-friendly `Markdown`, and machine-readable `JSON`.
+- **Validation-first workflow** for source specs and generated cases.
+- **Installable CLI** via `pyproject.toml` with the `ai-tc-gen` command.
+- ✅ Input da file **YAML** o **Excel (.xlsx)**  
+- 🧠 Supporto a test case generati tramite AI o provider locali  
+- ⚙️ Output in formato pytest tramite CLI o Web App  
+- 🔍 Logging e validazione automatica delle specifiche  
 - 📦 Compatibile con ambienti Windows, Linux e macOS
 - 🌐 Documentazione pronta per pubblicazione online e portfolio
 
----
-
-## 📦 Installazione / Installation
+## 🚀 Quick start
 
 ```bash
-git clone https://github.com/<tuo-utente>/ai-testcase-generator.git
+git clone https://github.com/<your-user>/ai-testcase-generator.git
 cd ai-testcase-generator
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
----
-
-## ▶️ Uso rapido / Quick Start
-
-### CLI
-
-```bash
-python -m ai_tc_gen.cli generate \
-  --spec examples/specs/sample_spec.yaml \
-  --provider local \
-  --out generated
-
-pytest generated/
-```
-
-Il file generato sarà salvato nella cartella `generated/`.
-
-### Web app locale
-
-```bash
-python web_app.py
-```
-
-Poi apri <http://127.0.0.1:8000> nel browser, incolla o modifica una specifica YAML e premi **Generate pytest**.
-
----
-
-## 🌿 Branch e pubblicazione online
-
-Per rendere il progetto disponibile online in modo ordinato:
-
-1. Lavora su un branch dedicato, ad esempio `feature/update-readme`.
-2. Esegui test e generazione di esempio in locale.
-3. Apri una Pull Request verso `main`.
-4. Dopo il merge, pubblica una release GitHub con un tag come `v1.0.0`.
-
-Consulta la guida completa: [docs/online_release_workflow.md](docs/online_release_workflow.md).
-
----
-
 ## 🧭 Project Status
-
-- ✅ `v1.0.0` – CLI core version released
-- ✅ Web app locale minimale disponibile con `python web_app.py`
-- 🚧 `v2.0.0` – Web App pubblicabile online in development
+✅ v1.0.0 – CLI core version released  
+✅ v2.0.0 – Web App version available
 
 ---
 
-## 📚 Documentazione / Documentation
+## 🌐 Web App Version
 
-- [How to run](HOW_TO_RUN.md)
-- [Windows guide](HOW_TO_RUN_WINDOWS.md)
-- [How to use](docs/how_to_use.md)
-- [Excel input guide](docs/excelversion.md)
-- [Online publishing workflow](docs/online_release_workflow.md)
-- [Contributing](CONTRIBUTING.md)
+The project now includes a lightweight Web App based on Python's standard library for generating pytest test cases from YAML specs without using the CLI.
+
+### Run locally
+
+```bash
+pip install -r requirements.txt
+python -m ai_tc_gen.web
+```
+
+Then open <http://127.0.0.1:5000> and:
+
+1. Paste or load the sample YAML specification.
+2. Select the provider (`Local mock` for deterministic offline generation, or `OpenAI` when `OPENAI_API_KEY` is configured).
+3. Click **Generate preview** to inspect generated test cases and pytest output.
+4. Click **Download pytest** to download the generated `.py` file.
+
+### HTTP API
+
+```bash
+curl -X POST http://127.0.0.1:5000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"provider":"local","spec":"title: Demo\ntarget: api\nsubject: GET /health\ninputs:\n  - name: ok\n    expected:\n      status_code: 200\n"}'
+```
