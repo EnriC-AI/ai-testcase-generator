@@ -12,6 +12,7 @@ from .templating import render_pytest_content, render_pytest_file
 from .utils import slugify
 from .validators import validate_testcases
 
+SUPPORTED_FORMATS = {"pytest": ".py", "markdown": ".md", "json": ".json"}
 
 def spec_from_mapping(raw: Dict[str, Any]) -> TestCaseSpec:
     """Map a dictionary loaded from YAML/JSON into a TestCaseSpec dataclass."""
@@ -60,7 +61,22 @@ def generate_testcases_from_spec(spec: TestCaseSpec, provider_name: str = 'local
 
     ok, errors = validate_testcases(testcases)
     if not ok:
-        raise ValueError("Validation errors: " + "; ".join(errors))
+        raise ValueError("Generated test case validation errors: " + "; ".join(errors))
+
+    return testcases
+
+
+def generate_pytest_content_from_yaml(yaml_text: str, provider_name: str = 'local', provider_kwargs: Optional[dict] = None) -> str:
+    """Generate pytest source code directly from YAML text."""
+    spec = load_spec_from_yaml_text(yaml_text)
+    testcases = generate_testcases_from_spec(spec, provider_name=provider_name, provider_kwargs=provider_kwargs)
+    return render_pytest_content(testcases, spec=spec)
+
+
+def generate_from_spec(spec_path: str, provider_name: str = 'local', out_dir: str = 'generated', format: str = 'pytest', provider_kwargs: Optional[dict] = None) -> str:
+    """Main entry used by CLI: returns path to rendered artifact."""
+    spec = load_spec(spec_path)
+    testcases = generate_testcases_from_spec(spec, provider_name=provider_name, provider_kwargs=provider_kwargs)
 
     return testcases
 
@@ -79,9 +95,14 @@ def generate_from_spec(spec_path: str, provider_name: str = 'local', out_dir: st
 
     os.makedirs(out_dir, exist_ok=True)
     base = slugify(spec.title)
-    if format == 'pytest':
-        out_path = os.path.join(out_dir, f"test_{base}.py")
-        render_pytest_file(out_path, testcases, spec=spec)
-        return out_path
+    prefix = "test_" if format == "pytest" else ""
+    out_path = output_dir / f"{prefix}{base}{SUPPORTED_FORMATS[format]}"
 
-    raise NotImplementedError(f"Format {format} not implemented")
+    if format == "pytest":
+        render_pytest_file(out_path, testcases, spec=spec)
+    elif format == "markdown":
+        render_markdown_file(out_path, testcases, spec=spec)
+    else:
+        render_json_file(out_path, testcases, spec=spec)
+
+    return str(out_path)

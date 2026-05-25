@@ -1,25 +1,31 @@
 # 🧪 AI Test Case Generator
 
-🇮🇹 Generatore di test case automatizzati basato su specifiche YAML o Excel.  
-🇬🇧 Automated test case generator based on YAML or Excel specifications.
+Professional CLI tool that turns YAML or Excel specifications into practical test-case artifacts for QA automation teams.
 
----
+It is designed as a portfolio-ready automation project: deterministic local generation for CI, optional OpenAI-assisted generation, strict validation, and outputs that can be reviewed by QA engineers or wired into a pytest suite.
 
-## 🚀 Funzionalità / Features
+## ✨ Features
 
+- **YAML and Excel input** for product, API, function or service test specs.
+- **Deterministic local provider** for demos, offline work and CI pipelines.
+- **Optional OpenAI provider** for LLM-assisted generation when `OPENAI_API_KEY` is configured.
+- **Multiple output formats:** parametrized `pytest`, reviewer-friendly `Markdown`, and machine-readable `JSON`.
+- **Validation-first workflow** for source specs and generated cases.
+- **Installable CLI** via `pyproject.toml` with the `ai-tc-gen` command.
 - ✅ Input da file **YAML** o **Excel (.xlsx)**  
 - 🧠 Supporto a test case generati tramite AI o provider locali  
 - ⚙️ Output in formato pytest tramite CLI o Web App  
 - 🔍 Logging e validazione automatica delle specifiche  
 - 📦 Compatibile con ambienti Windows, Linux e macOS
+- 🌐 Documentazione pronta per pubblicazione online e portfolio
 
----
-
-## 📦 Installazione / Installation
+## 🚀 Quick start
 
 ```bash
-git clone https://github.com/<tuo-utente>/ai-testcase-generator.git
+git clone https://github.com/<your-user>/ai-testcase-generator.git
 cd ai-testcase-generator
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 

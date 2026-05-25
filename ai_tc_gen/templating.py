@@ -12,7 +12,7 @@ PYTEST_TEMPLATE = """
 
 {% for tc in testcases %}
 def test_{{ tc.name | replace(' ', '_') }}():
-    {{ tc.description }}
+    # {{ tc.description }}
     {% for step in tc.steps %}
     # Step: {{ step.action }}
     # Input: {{ step.input | safe }}
@@ -21,6 +21,30 @@ def test_{{ tc.name | replace(' ', '_') }}():
     assert True
     {% endfor %}
 
+{% endfor %}
+"""
+
+MARKDOWN_TEMPLATE = """# {{ spec.title }} - Generated Test Cases
+
+{{ spec.description }}
+
+**Target:** `{{ spec.target }}`  
+**Subject:** `{{ spec.subject }}`
+
+{% for case in testcases %}
+## {{ case.id }} - {{ case.name }}
+
+{{ case.description }}
+
+**Tags:** {{ case.tags | join(', ') if case.tags else 'none' }}
+
+{% for step in case.steps %}
+### Step {{ loop.index }}
+
+- **Action:** {{ step.action }}
+- **Input:** `{{ step.input | safe_repr }}`
+- **Expected:** `{{ step.expected | safe_repr }}`
+{% endfor %}
 {% endfor %}
 """
 

@@ -1,32 +1,57 @@
-# models.py
-# Data models used by the generator
-from dataclasses import dataclass, field
-from typing import List, Dict, Any
+"""Domain models used by AI Test Case Generator."""
 
-@dataclass
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass, field
+from typing import Any
+
+
+@dataclass(frozen=True)
 class TestStep:
-    """A single step inside a test case."""
+    """A single action/assertion pair inside a generated test case."""
+
     action: str
-    input: Dict[str, Any]
+    input: dict[str, Any]
     expected: Any
 
-@dataclass
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serialisable representation of the step."""
+        return asdict(self)
+
+
+@dataclass(frozen=True)
 class TestCase:
-    """A generated test case containing steps and metadata."""
+    """A generated test case containing executable intent and metadata."""
+
     id: str
     name: str
     description: str
-    # details: str
-    steps: List[TestStep] = field(default_factory=list)
-    tags: List[str] = field(default_factory=list)
+    steps: list[TestStep] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
-@dataclass
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serialisable representation of the test case."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "steps": [step.to_dict() for step in self.steps],
+            "tags": self.tags,
+        }
+
+
+@dataclass(frozen=True)
 class TestCaseSpec:
     """The input specification used to generate test cases."""
+
     title: str
     description: str
-    target: str  # e.g. 'api' or 'function'
+    target: str
     subject: str
-    inputs: List[Dict[str, Any]] = field(default_factory=list)
-    edge_cases: List[Dict[str, Any]] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    inputs: list[dict[str, Any]] = field(default_factory=list)
+    edge_cases: list[dict[str, Any]] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serialisable representation of the source spec."""
+        return asdict(self)
