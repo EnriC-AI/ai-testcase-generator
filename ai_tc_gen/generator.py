@@ -78,6 +78,21 @@ def generate_from_spec(spec_path: str, provider_name: str = 'local', out_dir: st
     spec = load_spec(spec_path)
     testcases = generate_testcases_from_spec(spec, provider_name=provider_name, provider_kwargs=provider_kwargs)
 
+    return testcases
+
+
+def generate_pytest_content_from_yaml(yaml_text: str, provider_name: str = 'local', provider_kwargs: Optional[dict] = None) -> str:
+    """Generate pytest source code directly from YAML text."""
+    spec = load_spec_from_yaml_text(yaml_text)
+    testcases = generate_testcases_from_spec(spec, provider_name=provider_name, provider_kwargs=provider_kwargs)
+    return render_pytest_content(testcases, spec=spec)
+
+
+def generate_from_spec(spec_path: str, provider_name: str = 'local', out_dir: str = 'generated', format: str = 'pytest', provider_kwargs: Optional[dict] = None) -> str:
+    """Main entry used by CLI: returns path to rendered artifact."""
+    spec = load_spec(spec_path)
+    testcases = generate_testcases_from_spec(spec, provider_name=provider_name, provider_kwargs=provider_kwargs)
+
     os.makedirs(out_dir, exist_ok=True)
     base = slugify(spec.title)
     prefix = "test_" if format == "pytest" else ""
